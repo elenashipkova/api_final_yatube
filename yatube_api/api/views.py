@@ -5,7 +5,12 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from .models import Follow, Group, Post
 from .permissions import IsOwnerOrReadOnly
-from .serializers import *
+from .serializers import (
+    CommentSerializer,
+    FollowSerializer,
+    GroupSerializer,
+    PostSerializer
+)
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -13,7 +18,7 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['group',]
+    filterset_fields = ['group', ]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -39,7 +44,6 @@ class FollowViewSet(viewsets.ModelViewSet):
     serializer_class = FollowSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['user__username', 'following__username']
-
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

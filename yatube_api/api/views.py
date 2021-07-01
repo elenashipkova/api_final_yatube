@@ -1,5 +1,5 @@
-from django_filters.rest_framework import DjangoFilterBackend, filters
-from rest_framework import filters, generics, viewsets
+from django_filters.rest_framework import filters
+from rest_framework import filters, mixins, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
@@ -17,8 +17,13 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['group', ]
+
+    def get_queryset(self):
+        queryset = Post.objects.all()
+        group = self.request.query_params.get('group', None)
+        if group:
+            queryset = Post.objects.filter(group=group)
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -40,10 +45,9 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class FollowViewSet(viewsets.ModelViewSet):
-    # queryset = Follow.objects.all()
     serializer_class = FollowSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['user__username', 'following__username']
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('user__username', 'following__username')
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -52,7 +56,9 @@ class FollowViewSet(viewsets.ModelViewSet):
         return Follow.objects.filter(following=self.request.user)
 
 
-class GroupList(generics.ListCreateAPIView):
+class GroupListViewSet(mixins.ListModelMixin,
+                       mixins.CreateModelMixin,
+                       viewsets.GenericViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)

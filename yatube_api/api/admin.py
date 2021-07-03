@@ -12,7 +12,7 @@ class PostAdmin(admin.ModelAdmin):
 
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('id', 'text', 'author', 'post', 'created')
-    search_fields = ('post',)
+    search_fields = ('text',)
     list_filter = ('created',)
 
 
@@ -23,7 +23,7 @@ class GroupAdmin(admin.ModelAdmin):
 
 class FollowAdmin(admin.ModelAdmin):
     list_display = ('user', 'following')
-    search_fields = ('user', 'following')
+    search_fields = ('user__username', 'following__username')
 
 
 admin.site.register(Post, PostAdmin)

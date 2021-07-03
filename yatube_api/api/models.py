@@ -27,7 +27,7 @@ class Follow(models.Model):
         verbose_name_plural = 'Подписки'
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'following'], name='unique_subscription'
+                fields=('user', 'following'), name='unique_subscription'
             )
         ]
 
@@ -50,7 +50,7 @@ class Post(models.Model):
         verbose_name_plural = 'Посты'
 
     def __str__(self):
-        return self.text
+        return self.text[:15]
 
 
 class Comment(models.Model):
@@ -69,4 +69,5 @@ class Comment(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
